@@ -47,6 +47,10 @@ def main():
             wait_list_connections.append(con)
             thread = threading.Thread(target=handle_client, args=[con])
             thread.start()
+    except Exception as e:
+        utils.server_print(str(e))
+    finally:
+        print("Server is close!")
 
 def handle_client():
     pass

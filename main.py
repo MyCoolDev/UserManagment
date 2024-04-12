@@ -6,6 +6,7 @@ import datetime
 import utils
 import DataStructures.connections as connections
 from DataStructures.connections import Connection
+# from DataBaseManagement import
 
 # list[connection]
 live_connections = []
@@ -52,5 +53,37 @@ def main():
     finally:
         print("Server is close!")
 
-def handle_client():
-    pass
+def handle_client(con: Connection):
+    try:
+        # send the client that the connection has been successful.
+        # response (json) format: {event: '', data?: {}}
+        con.connection.send(json.dumps({'event': 'connection_initialized'}).encode())
+        utils.server_print("A new connection has been initialized, " + str(con.data))
+
+        # for now, we assume that the user is automatically in the wait list.
+        while True:
+            # read the client request to the server.
+            # request (json) format: {method: ('POST' || 'GET'), event: '', data: {}}
+            request = json.loads(con.connection.recv(1024).decode())
+
+            if not ('method' in request.keys() and 'event' in request.keys()):
+                con.connection.send(json.dumps({'event': 'bad_formatting'}).encode())
+                continue
+
+            if (request['method'] == "POST") and not('data' in request.keys()):
+                con.connection.send(json.dumps({'event': 'bad_formatting'}).encode())
+                continue
+
+            # take the current datetime immediately.
+            time = datetime.datetime.now()
+
+            if con.status == connections.Status.Wait:
+                if request["method"] == 'POST':
+                    if request["event"] == "login":
+                        pass
+
+
+    except:
+        pass
+    finally:
+        pass
